@@ -12,8 +12,8 @@
 
   // camera state
   const cam = {
-    yaw: -0.4, pitch: -0.06,
-    pos: new THREE.Vector3(-30, 3.2, 62),
+    yaw: -0.4, pitch: -0.02,
+    pos: new THREE.Vector3(-30, 1.7, 62),   // eye height ≈ a pedestrian's
     vel: new THREE.Vector3()
   };
   const keys = {};

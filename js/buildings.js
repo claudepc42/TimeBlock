@@ -83,10 +83,11 @@ TB.buildings = {};
     // door (offset right)
     g.add(TB.mesh(TB.geo.box, TB.mat(0x241a12), sw / 2 - 1.6, 1.45, fz + 0.08, 1.5, 2.9, 0.15));
     g.add(TB.mesh(TB.geo.box, TB.mat(0xc8b878, { metalness: 0.8, roughness: 0.3 }), sw / 2 - 2.2, 1.4, fz + 0.18, 0.1, 0.5, 0.1));
-    // sign board above
+    // sign board above — sits on the fascia just below the 2nd-floor cornice
+    // and stands proud of the wall so awnings/cornices can't eat it
     if (store.name) {
-      const s = signBoard(store.name, store.style || 'painted', Math.min(sw, store.wide ? sw : sw * 0.8), 1.5, store);
-      s.position.set(0, 4.6, fz + 0.12);
+      const s = signBoard(store.name, store.style || 'painted', Math.min(sw, store.wide ? sw : sw * 0.8), 1.4, store);
+      s.position.set(0, 4.75, fz + 0.4);
       g.add(s);
     }
     // awning for older eras / cafés
@@ -332,7 +333,7 @@ TB.buildings = {};
       2055: ['FIRST UNION QUANTUM TRUST', 'holo', { fg: '#41f2ff' }]
     }[o.era];
     const s = signBoard(bankSigns[0], bankSigns[1], 12, 1.6, bankSigns[2]);
-    s.position.set(0, 7.6, o.d / 2 + 1.3);
+    s.position.set(0, 8.1, o.d / 2 + 1.55);
     g.add(s);
     g.userData.height = h + 5;
     return g;

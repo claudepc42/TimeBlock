@@ -516,11 +516,14 @@ window.TB = window.TB || {};
 
     // ------------- era transition -------------
     setEra: function (era) {
-      if (era === this.current && !this.transition) return;
+      // Same era: either we're already there or already heading there.
+      // Re-entering would make oldW === newW and the cleanup pass would
+      // hide the world it just revealed — never proceed.
+      if (era === this.current) return;
       if (this.transition) this.finishTransition();
       const oldW = this.worlds[this.current];
       const newW = this.worlds[era];
-      if (!oldW || !newW) { this.show(era); return; }
+      if (!oldW || !newW || oldW === newW) { this.show(era); return; }
 
       TB.audio.whoosh(0.9);
       newW.root.visible = true;
@@ -533,26 +536,28 @@ window.TB = window.TB || {};
         const ol = oldW.lots[i];
         const stag = i * 0.1;
         if (ol.id === nl.id) {
-          // renovation wipe: clip plane sweeps upward, replacing old with new
-          const maxH = Math.max(ol.height, nl.height) + 8;
-          const upPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);   // shows y < c on new
-          const downPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);  // shows y > -c on old
-          setClip(nl.group, upPlane);
-          setClip(ol.group, downPlane);
-          nl.group.visible = true;
+          // renovation: quick dip below ground and rebound as the new
+          // version — reads as the building "refreshing" in place
+          nl.group.scale.y = 0.001;
+          nl.group.visible = false;
           acts.push({
-            t0: 0.3 + stag, t1: 2.0 + stag, ol: ol, nl: nl,
-            up: upPlane, down: downPlane, maxH: maxH,
+            t0: 0.25 + stag, t1: 0.65 + stag, ol: ol,
             update: function (t) {
-              const y = TB.smoothstep(t) * this.maxH;
-              this.up.constant = y;
-              this.down.constant = -y;
+              this.ol.group.scale.y = Math.max(0.001, 1 - TB.smoothstep(t));
             },
             end: function () {
-              clearClip(this.nl.group);
-              clearClip(this.ol.group);
               this.ol.group.visible = false;
+              this.ol.group.scale.y = 1;
+              TB.fx.burst(this.ol.group.position.x, 0.4, this.ol.group.position.z, 0xaaa294, 18, 5);
             }
+          });
+          acts.push({
+            t0: 0.72 + stag, t1: 1.35 + stag, nl: nl,
+            update: function (t) {
+              this.nl.group.visible = true;
+              this.nl.group.scale.y = Math.max(0.001, TB.easeOutBack(t));
+            },
+            end: function () { this.nl.group.scale.y = 1; this.nl.group.visible = true; }
           });
         } else {
           // demolish + rebuild

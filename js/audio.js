@@ -53,37 +53,38 @@ TB.audio = (function () {
       src.start();
     });
 
-    // --- traffic bed: filtered noise with slow wobble
+    // --- traffic bed: low, smooth filtered noise (a steady 'shhh', no wobble)
     makeLayer('traffic', function (out) {
       const src = ctx.createBufferSource();
-      src.buffer = noiseBuffer(4, true);
+      src.buffer = noiseBuffer(6, true);
       src.loop = true;
-      const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass'; bp.frequency.value = 400; bp.Q.value = 0.6;
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 520; lp.Q.value = 0.3;
+      // very slow, very shallow drift so it feels alive but never pulses
       const lfo = ctx.createOscillator();
-      lfo.frequency.value = 0.13;
-      const lfoG = ctx.createGain(); lfoG.gain.value = 150;
-      lfo.connect(lfoG); lfoG.connect(bp.frequency);
+      lfo.frequency.value = 0.05;
+      const lfoG = ctx.createGain(); lfoG.gain.value = 60;
+      lfo.connect(lfoG); lfoG.connect(lp.frequency);
       lfo.start();
-      src.connect(bp); bp.connect(out);
+      src.connect(lp); lp.connect(out);
       src.start();
     });
 
-    // --- crowd murmur: bandpassed noise, voice-ish band, tremolo
+    // --- crowd murmur: soft voice-band noise, only a hint of movement
     makeLayer('crowd', function (out) {
       const src = ctx.createBufferSource();
-      src.buffer = noiseBuffer(4, false);
+      src.buffer = noiseBuffer(6, false);
       src.loop = true;
       const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 2.2;
-      const bp2 = ctx.createBiquadFilter();
-      bp2.type = 'bandpass'; bp2.frequency.value = 350; bp2.Q.value = 1.5;
-      const trem = ctx.createGain(); trem.gain.value = 0.5;
-      const lfo = ctx.createOscillator(); lfo.frequency.value = 2.1;
-      const lfoG = ctx.createGain(); lfoG.gain.value = 0.25;
+      bp.type = 'bandpass'; bp.frequency.value = 620; bp.Q.value = 0.9;
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 1400;
+      // gentle, irregular swell — slow and shallow so it reads as a room, not a pulse
+      const trem = ctx.createGain(); trem.gain.value = 0.85;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.22;
+      const lfoG = ctx.createGain(); lfoG.gain.value = 0.12;
       lfo.connect(lfoG); lfoG.connect(trem.gain); lfo.start();
-      src.connect(bp); bp.connect(trem);
-      src.connect(bp2); bp2.connect(trem);
+      src.connect(bp); bp.connect(lp); lp.connect(trem);
       trem.connect(out);
       src.start();
     });
@@ -300,11 +301,11 @@ TB.audio = (function () {
     if (!ctx) return;
     currentEra = era;
     const mix = TB.ERA_AUDIO[era];
-    layers.rumble.target = mix.rumble * 0.5;
-    layers.traffic.target = mix.traffic * 0.35;
-    layers.crowd.target = mix.crowd * 0.5;
-    layers.neonBuzz.target = mix.neonBuzz * 0.5;
-    layers.hover.target = mix.hover * 0.6;
+    layers.rumble.target = mix.rumble * 0.34;
+    layers.traffic.target = mix.traffic * 0.26;
+    layers.crowd.target = mix.crowd * 0.30;
+    layers.neonBuzz.target = mix.neonBuzz * 0.4;
+    layers.hover.target = mix.hover * 0.5;
     for (const k in layers) {
       const L = layers[k];
       const cur = L.gain.gain.value;
