@@ -2,6 +2,8 @@
 
 One city block, six eras — **1945 · 1965 · 1985 · 2005 · 2025 · 2055**.
 
+**▶ Live page: <https://claudepc42.github.io/TimeBlock/>**
+
 A 3D scene of a single city block that transforms in front of you as you drag
 the timeline slider. Buildings rise and fall, storefronts re-sign themselves,
 cars trade tailfins for hover skirts, pedestrians change wardrobes, and the
@@ -9,7 +11,8 @@ light, sky and soundscape shift with every decade.
 
 ## Run it
 
-Double-click **`index.html`** — everything is local (Three.js is bundled in
+Open the [live page](https://claudepc42.github.io/TimeBlock/), or just
+double-click **`index.html`** — everything is local (Three.js is bundled in
 `lib/`), no server or internet needed. Click **ENTER THE TIMESTREAM**.
 
 ## Controls
